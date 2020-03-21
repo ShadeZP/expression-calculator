@@ -9,7 +9,8 @@ function expressionCalculator(expr) {
 
    let brackets = 0
    for (let i=0; i<expr.length; i++) {
-        if (expr[i]=='(') {
+        if (!!~expr.indexOf('/ 0')) {throw new TypeError('TypeError: Division by zero.')
+        }else if (expr[i]=='(') {
             brackets++
         }else if(expr[i]==')') {
             brackets--
@@ -18,8 +19,17 @@ function expressionCalculator(expr) {
     if (brackets!==0) throw new Error ("ExpressionError: Brackets must be paired");
     
     //подготовка логики
-//TODO СДЕЛАТЬ ПРОВЕРКУ МАССИВА НА ОТСУТСТВИЕ ПРОБЕЛОВ
-    let exprArr = expr.trim().split(/\s+/);  //превращаем выражение в массив
+
+    let exprTrim = expr.trim()
+    let exprArr = [];
+    function getExprArr(expr) {
+        if (expr.includes(' ')){
+            exprArr = expr.split(/\s+/)
+        } else {
+            exprArr = expr.split('');
+        }
+    }
+    getExprArr (exprTrim);
     let numbers = [];   //стек для чисел
     let signs = []; // стек для знаков
     const SIGN = '+-*/'
@@ -48,7 +58,15 @@ function expressionCalculator(expr) {
     };
 
     function checkPriority(a, b) {
-        if (lastSign == '(' || PRIORITY[a]>PRIORITY[b] || signs.length == 0 ){
+        // if (a==b&&a=='-'){
+        if (PRIORITY[a] && signs[signs.length-1] === '-' && PRIORITY[a] === PRIORITY[b] && a == '-' ) {
+            const x = numbers.splice(-2, 1);
+            const y = numbers.splice(-2, 1);
+            const op = signs.splice(-2, 1);
+            const val = MATH[op](x, y);
+            numbers.splice(-1, 0, val);
+            signs.push(a);
+        }else if (signs[signs.length-1] == '(' || PRIORITY[a]>PRIORITY[b] || signs.length == 0 ){
             signs.push(a);
         } else {            
             calculate();
@@ -57,22 +75,46 @@ function expressionCalculator(expr) {
 
     };
 
+
+
+    function calcBrackets(a, b) {
+        if (a!=='(') {
+            calculate()
+            calcBrackets(signs[signs.length-1], signs[signs.length-2])
+        }else{
+            signs.pop()
+
+        }
+    }
+
     //закидвыние элементов по стекам
 
     exprArr.forEach(element => {
-        if (!isNaN(element)){
+        if (element=== ")") {
+            calcBrackets (signs[signs.length-1], signs[signs.length-2])
+        } else if (!isNaN(element)){
             numbers.push(element)
         } else if (element == '(') {
             signs.push(element);
         } else if (SIGN.includes(element) ) {
             checkPriority(element, signs[signs.length-1]);
-        } else {
-            
         }        
     });
 
+    function restCalculator() {
+        if (signs[signs.length-1] == signs[signs.length-2] && signs[signs.length-1] == '-'){
+            const x = numbers.splice(-2, 1);
+            const y = numbers.splice(-2, 1);
+            const op = signs.splice(-2, 1);
+            const val = MATH[op](x, y);
+            numbers.splice(-1, 0, val);            
+        }else{
+            calculate ()
+        }
+    }
+
     while (signs.length != 0) {
-        calculate()
+        restCalculator ()
     }
     return numbers[0];
 };
