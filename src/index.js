@@ -57,8 +57,7 @@ function expressionCalculator(expr) {
         numbers.push(MATH[op](y, x));        
     };
 
-    function checkPriority(a, b) {
-        // if (a==b&&a=='-'){
+    function checkPriority(a, b) {        
         if (PRIORITY[a] && signs[signs.length-2] === '-' && PRIORITY[a] === PRIORITY[b] && a !== '/' && a !== '*') {
             const x = numbers.splice(-2, 1);
             const y = numbers.splice(-2, 1);
@@ -77,10 +76,26 @@ function expressionCalculator(expr) {
 
 
 
+    // function calcBrackets(a, b) {
+    //     if (a!=='(') {
+    //         calculate()
+    //         calcBrackets(signs[signs.length-1], signs[signs.length-2])
+    //     }else{
+    //         signs.pop()
+
+    //     }
+    // }
+
     function calcBrackets(a, b) {
         if (a!=='(') {
-            calculate()
-            calcBrackets(signs[signs.length-1], signs[signs.length-2])
+            if (PRIORITY[a] && signs[signs.length-2] === '-' && PRIORITY[a] === PRIORITY[b] && a !== '/' && a !== '*') {
+            const x = numbers.splice(-2, 1);
+            const y = numbers.splice(-2, 1);
+            const op = signs.splice(-2, 1);
+            const val = MATH[op](y, x);
+            numbers.splice(-1, 0, val);            
+            }else{calculate()}
+            calcBrackets(signs[signs.length-1], signs[signs.length-2])            
         }else{
             signs.pop()
 
