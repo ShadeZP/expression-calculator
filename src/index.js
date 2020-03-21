@@ -106,7 +106,7 @@ function expressionCalculator(expr) {
             const x = numbers.splice(-2, 1);
             const y = numbers.splice(-2, 1);
             const op = signs.splice(-2, 1);
-            const val = MATH[op](x, y);
+            const val = MATH[op](y, x);
             numbers.splice(-1, 0, val);            
         }else{
             calculate ()
