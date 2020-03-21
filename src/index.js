@@ -59,11 +59,11 @@ function expressionCalculator(expr) {
 
     function checkPriority(a, b) {
         // if (a==b&&a=='-'){
-        if (PRIORITY[a] && signs[signs.length-1] === '-' && PRIORITY[a] === PRIORITY[b] && a == '-' ) {
+        if (PRIORITY[a] && signs[signs.length-2] === '-' && PRIORITY[a] === PRIORITY[b] && a !== '/' && a !== '*') {
             const x = numbers.splice(-2, 1);
             const y = numbers.splice(-2, 1);
             const op = signs.splice(-2, 1);
-            const val = MATH[op](x, y);
+            const val = MATH[op](y, x);
             numbers.splice(-1, 0, val);
             signs.push(a);
         }else if (signs[signs.length-1] == '(' || PRIORITY[a]>PRIORITY[b] || signs.length == 0 ){
@@ -101,17 +101,27 @@ function expressionCalculator(expr) {
         }        
     });
 
-    function restCalculator() {
-        if (signs[signs.length-1] == signs[signs.length-2] && signs[signs.length-1] == '-'){
-            const x = numbers.splice(-2, 1);
-            const y = numbers.splice(-2, 1);
-            const op = signs.splice(-2, 1);
-            const val = MATH[op](y, x);
-            numbers.splice(-1, 0, val);            
-        }else{
-            calculate ()
+    // function restCalculator() {
+    //     if (PRIORITY[signs[signs.length-1]] == PRIORITY[signs[signs.length-2]] && signs[signs.length-1] !== '*'&& signs[signs.length-1] !== '/'){
+    //         const x = numbers.splice(-2, 1);
+    //         const y = numbers.splice(-2, 1);
+    //         const op = signs.splice(-2, 1);
+    //         const val = MATH[op](y, x);
+    //         numbers.splice(-1, 0, val);            
+    //     }else{
+    //         calculate ()
+    //     }
+    // }
+    const restCalculator = () => {
+        if (PRIORITY[signs[signs.length-1]] > PRIORITY[signs[signs.length-2]]) {
+          calculate();
+        } else {
+          const x = numbers.shift();
+          const y = numbers.shift();
+          const op = signs.shift();
+          numbers.unshift(MATH[op](x, y));
         }
-    }
+      };
 
     while (signs.length != 0) {
         restCalculator ()
